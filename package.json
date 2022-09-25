@@ -1,0 +1,21 @@
+{
+    "name": "history-manager",
+    "version": "1.0.0",
+    "description": "Clear Stale History Automatically",
+    "main": "build.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "esbuild --bundle --minify --sourcemap --target=firefox91 --outdir=./build ./src/**/*",
+        "pack": "web-ext build -s ./build --overwrite-dest -a ext-out -n history-manager.xpi",
+        "build-pack": "npm run build && npm run pack"
+    },
+    "author": "Matthew_Cash",
+    "license": "GPLv3-only",
+    "dependencies": {
+        "esbuild": "^0.15.5",
+        "esbuild-copy-static-files": "^0.1.0",
+        "typescript": "^4.7.4",
+        "web-ext": "^7.2.0",
+        "web-ext-types": "^3.2.1"
+    }
+}
