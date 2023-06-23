@@ -1,11 +1,7 @@
 # Build Outputs
 result
-build/
+dist/
 ext-out/
-*.js
-*.zip
-*.xpi
-*.crx
 
 # Node Modules
 node_modules/

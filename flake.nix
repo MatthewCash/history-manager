@@ -6,11 +6,11 @@
         flake-utils.url = "github:numtide/flake-utils";
     };
 
-    outputs = inputs @ { self, nixpkgs, flake-utils, ... }:
+    outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
         let
             pkgs = nixpkgs.legacyPackages.${system};
-            nodejs = pkgs.nodejs-16_x;
+            nodejs = pkgs.nodejs;
             nodeEnv = import ./node-env.nix {
                 inherit (pkgs) stdenv lib python2 runCommand writeTextFile writeShellScript;
                 inherit pkgs nodejs;
@@ -20,6 +20,7 @@
                 inherit (pkgs) fetchurl nix-gitignore stdenv lib fetchgit;
                 inherit nodeEnv;
             };
+            npm = "${nodejs}/bin/npm";
         in {
             devShell = nodePackage.shell;
             defaultPackage = pkgs.stdenvNoCC.mkDerivation {
@@ -27,20 +28,15 @@
                 src = "${nodePackage.package}/lib/node_modules/history-manager";
                 dontConfigure = true;
                 buildPhase = ''
-                    shopt -s globstar
-                    shopt -s nullglob
-                    
-                    for i in ./src/**/*.ts; do
-                        ${pkgs.esbuild}/bin/esbuild "$i" --bundle --minify --sourcemap --target=firefox102 --outdir=./build/$(dirname "''${i#./*/}")
-                    done
-
-                    cp -r assets/* build/
-                    cd build
-                    ${pkgs.zip}/bin/zip -r history-manager.xpi *
+                    ${npm} run build:firefox
+                    ${npm} run pack
+                '';
+                checkPhase = ''
+                    ${npm} run test
                 '';
                 installPhase = ''
                     mkdir -p $out/addon
-                    cp history-manager.xpi $out/addon/
+                    cp ext-out/* $out/addon/
                 '';
             };
         }

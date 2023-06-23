@@ -1,22 +1,33 @@
-(async () => {
-    const clearStaleHistory = async () => {
-        const endTime = Date.now() - 2.628e+9; // 1 month ago
+import browser from 'webextension-polyfill';
 
-        const [oldHistoryItems, tabs] = await Promise.all([
-            browser.history.search({ endTime, startTime: 0, text: "", maxResults: 1000 }),
-            browser.tabs.query({})
-        ]);
+const clearStaleHistory = async () => {
+    const endTime = Date.now() - 2.628e9; // 1 month ago
 
-        const openUrls = tabs.map(({ url }) => url);
+    const [oldHistoryItems, tabs] = await Promise.all([
+        browser.history.search({
+            endTime,
+            startTime: 0,
+            text: '',
+            maxResults: 1000
+        }),
+        browser.tabs.query({})
+    ]);
 
-        const staleHistoryItems = oldHistoryItems.filter(({ url }) => !openUrls.includes(url));
+    const openUrls = tabs.map(({ url }) => url);
 
-        if (!staleHistoryItems.length) return;
+    const staleHistoryItems = oldHistoryItems.filter(
+        ({ url }) => !openUrls.includes(url)
+    );
 
-        console.log(`Clearing ${staleHistoryItems.length} history items:`, { staleHistoryItems });
+    if (!staleHistoryItems.length) return;
 
-        staleHistoryItems.forEach(({ url }) => browser.history.deleteUrl({ url }));
-    };
+    console.log(`Clearing ${staleHistoryItems.length} history items:`, {
+        staleHistoryItems
+    });
 
-    setInterval(clearStaleHistory, 300000);
-})();
+    staleHistoryItems.forEach(
+        ({ url }) => url && browser.history.deleteUrl({ url })
+    );
+};
+
+setInterval(clearStaleHistory, 300000);

@@ -1,0 +1,14 @@
+{
+    "{{chrome}}.manifest_version": 3,
+    "{{firefox}}.manifest_version": 2,
+    "{{firefox}}.browser_specific_settings": {
+        "gecko": {
+            "id": "history-manager@matthew-cash.com"
+        }
+    },
+    "background": {
+        "{{chrome}}.service_worker": "src/js/background.ts",
+        "{{firefox}}.scripts": ["src/js/background.ts"]
+    },
+    "permissions": ["<all_urls>", "tabs", "history"]
+}
